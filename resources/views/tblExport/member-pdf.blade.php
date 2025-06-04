@@ -6,44 +6,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Report</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 5px;
-        }
+          body {
+        font-family: Arial, sans-serif;
+        margin: 5px;
+        transform: scale(0.95);
+        transform-origin: top left;
+    }
 
-        table {
-            width: 100%;
-            max-width: 100%;
-            border-collapse: collapse;
-            table-layout: auto;
-            word-wrap: break-word;
-        }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+    }
 
-        table,
-        th,
-        td {
-            border: 1px solid black;
-        }
+    th, td {
+        border: 1px solid black;
+        padding: 4px;
+        font-size: 8px;
+        text-align: left;
+    }
 
-        th,
-        td {
-            padding: 8px;
-            text-align: left;
-            font-size: 10px;
-        }
+    th {
+        background-color: #f2f2f2;
+    }
 
-        th {
-            background-color: #f2f2f2;
-        }
+    @page {
+        size: A4 landscape;
+        margin: 10mm;
+    }
 
-        @page {
-            size: A4;
-            margin: 10mm;
-        }
-
-        tr {
-            page-break-inside: avoid;
-        }
+    tr {
+        page-break-inside: avoid;
+    }
     </style>
 </head>
 
@@ -56,12 +51,12 @@
                 <th>Application Code</th>
                 <th>Member Code</th>
                 <th>Branch</th>
-                <th>First Name</th>
-                <th>Last Name</th>
+                <th>Full Name</th>
+                <th>Aadhaar Number</th>
+                <th>PAN Number</th>
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Occupation</th>
-                <th>Aadhaar No</th>
                 <th>Landmark</th>
                 <th>Pincode</th>
                 <th>Joining Date</th>
@@ -75,12 +70,12 @@
                 <td>{{ $member->application_number ?? 'N/A' }}</td>
                 <td>{{ $member->member_code ?? 'N/A' }}</td>
                 <td>{{ $member->branch->branch_name ?? 'N/A' }}</td>
-                <td>{{ $member->first_name }}</td>
-                <td>{{ $member->last_name }}</td>
+                <td>{{ $member->first_name }} {{ $member->middle_name }} {{ $member->last_name }}</td>
+                <td>{{ $member->aadhaar_number }}</td>
+                <td>{{ $member->pan_number }}</td>
                 <td>{{ $member->email }}</td>
                 <td>{{ $member->mobile_number }}</td>
                 <td>{{ $member->occupation }}</td>
-                <td>{{ $member->aadhaar_number }}</td>
                 <td>{{ $member->landmark }}</td>
                 <td>{{ $member->pincode }}</td>
                 <td>{{ \Carbon\Carbon::parse($member->enrollment_date)->format('d-m-Y') }}</td>

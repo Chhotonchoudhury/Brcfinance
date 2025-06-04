@@ -56,12 +56,12 @@
                 <th>Application Code</th>
                 <th>Member Code</th>
                 <th>Branch</th>
-                <th>First Name</th>
-                <th>Last Name</th>
+                <th>Full Name</th>
+                <th>Aadhaar Number</th>
+                <th>PAN Number</th>
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Occupation</th>
-                <th>Aadhaar No</th>
                 <th>Landmark</th>
                 <th>Pincode</th>
                 <th>Joining Date</th>
@@ -75,12 +75,12 @@
                 <td><?php echo e($member->application_number ?? 'N/A'); ?></td>
                 <td><?php echo e($member->member_code ?? 'N/A'); ?></td>
                 <td><?php echo e($member->branch->branch_name ?? 'N/A'); ?></td>
-                <td><?php echo e($member->first_name); ?></td>
-                <td><?php echo e($member->last_name); ?></td>
+                <td><?php echo e($member->first_name); ?> <?php echo e($member->middle_name); ?> <?php echo e($member->last_name); ?></td>
+                <td><?php echo e($member->aadhaar_number); ?></td>
+                <td><?php echo e($member->pan_number); ?></td>
                 <td><?php echo e($member->email); ?></td>
                 <td><?php echo e($member->mobile_number); ?></td>
                 <td><?php echo e($member->occupation); ?></td>
-                <td><?php echo e($member->aadhaar_number); ?></td>
                 <td><?php echo e($member->landmark); ?></td>
                 <td><?php echo e($member->pincode); ?></td>
                 <td><?php echo e(\Carbon\Carbon::parse($member->enrollment_date)->format('d-m-Y')); ?></td>
