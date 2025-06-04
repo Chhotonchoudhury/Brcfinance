@@ -44,7 +44,7 @@ class MemberExport implements FromCollection
               'occupation',
               'aadhaar_number',
               'pan_number',
-              'address1',
+              'correspondence_address_line1',
               'landmark',
               'pincode',
               'enrollment_date',
