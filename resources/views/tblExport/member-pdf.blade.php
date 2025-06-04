@@ -57,10 +57,9 @@
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Occupation</th>
-                <th>Landmark</th>
-                <th>Pincode</th>
+                <th>Address</th>
                 <th>Joining Date</th>
-                <th>Status</th>
+                
             </tr>
         </thead>
         <tbody>
@@ -74,18 +73,11 @@
                 <td>{{ $member->aadhaar_number }}</td>
                 <td>{{ $member->pan_number }}</td>
                 <td>{{ $member->email }}</td>
-                <td>{{ $member->mobile_number }}</td>
+                <td>+91 {{ $member->mobile_number }}</td>
                 <td>{{ $member->occupation }}</td>
-                <td>{{ $member->landmark }}</td>
-                <td>{{ $member->pincode }}</td>
+                <td>{{ $member->correspondence_address_line1 }}, {{ $member->area }} , {{ $member->city }} , {{ $member->pincode }}</td>
                 <td>{{ \Carbon\Carbon::parse($member->enrollment_date)->format('d-m-Y') }}</td>
-                <td>
-                    @if ($member->status)
-                    <span class="badge bg-success">Active</span>
-                    @else
-                    <span class="badge bg-danger">Deactivated</span>
-                    @endif
-                </td>
+              
             </tr>
             @endforeach
         </tbody>
