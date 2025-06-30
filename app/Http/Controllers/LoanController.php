@@ -15,6 +15,7 @@ use App\Models\MarketCode;
 use Illuminate\Support\Facades\Auth; // Make sure this is at the top
 use Carbon\Carbon; // Optional if you want to use Carbon
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class LoanController extends Controller
 {
@@ -103,6 +104,94 @@ class LoanController extends Controller
 
         // Apply search query and paginate for SavingAccountPlans
         $accounts = LoanAD::with(['member', 'marketcode']) // eager load relationships
+        ->where('application_status', '=', 'pending')
+        ->when($search, function ($query, $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('application_number', 'like', "%{$search}%")
+                  ->orWhereHas('member', function ($q) use ($search) {
+                      $q->where('member_code', 'like', "%{$search}%")
+                        ->orWhere('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('marketcode', function ($q) use ($search) {
+                      $q->where('code', 'like', "%{$search}%")
+                        ->orWhere('area_name', 'like', "%{$search}%");
+                  });
+            });
+        })->paginate(50);
+        // Corrected status filter 
+        // Filter accounts with approved_by not null
+        // Paginate results per page
+
+        // Return view with search and paginated results
+        return view('accounts.LoanAdApplication', compact('accounts', 'search'));
+    }
+
+    public function LoanADApplicationAp(Request $request){
+        // Capture search query
+        $search = $request->input('search', '');
+
+        // Apply search query and paginate for SavingAccountPlans
+        $accounts = LoanAD::with(['member', 'marketcode']) // eager load relationships
+        ->whereNotIn('application_status', ['pending', 'rejected'])
+        ->when($search, function ($query, $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('application_number', 'like', "%{$search}%")
+                  ->orWhereHas('member', function ($q) use ($search) {
+                      $q->where('member_code', 'like', "%{$search}%")
+                        ->orWhere('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('marketcode', function ($q) use ($search) {
+                      $q->where('code', 'like', "%{$search}%")
+                        ->orWhere('area_name', 'like', "%{$search}%");
+                  });
+            });
+        })->paginate(50);
+        // Corrected status filter 
+        // Filter accounts with approved_by not null
+        // Paginate results per page
+
+        // Return view with search and paginated results
+        return view('accounts.LoanAdApplication', compact('accounts', 'search'));
+    }
+
+    public function LoanADApplicationUDocVerify(Request $request){
+        // Capture search query
+        $search = $request->input('search', '');
+
+        // Apply search query and paginate for SavingAccountPlans
+        $accounts = LoanAD::with(['member', 'marketcode']) // eager load relationships
+        ->where('application_status', '=', 'under_document_verification')
+        ->when($search, function ($query, $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('application_number', 'like', "%{$search}%")
+                  ->orWhereHas('member', function ($q) use ($search) {
+                      $q->where('member_code', 'like', "%{$search}%")
+                        ->orWhere('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('marketcode', function ($q) use ($search) {
+                      $q->where('code', 'like', "%{$search}%")
+                        ->orWhere('area_name', 'like', "%{$search}%");
+                  });
+            });
+        })->paginate(50);
+        // Corrected status filter 
+        // Filter accounts with approved_by not null
+        // Paginate results per page
+
+        // Return view with search and paginated results
+        return view('accounts.LoanAdApplication', compact('accounts', 'search'));
+    }
+
+    public function LoanADApplicationReject(Request $request){
+        // Capture search query
+        $search = $request->input('search', '');
+
+        // Apply search query and paginate for SavingAccountPlans
+        $accounts = LoanAD::with(['member', 'marketcode']) // eager load relationships
+        ->where('application_status', '=', 'rejected')
         ->when($search, function ($query, $search) {
             $query->where(function ($q) use ($search) {
                 $q->where('application_number', 'like', "%{$search}%")
@@ -188,6 +277,23 @@ class LoanController extends Controller
 
         return redirect()->route('LoanADApplication.index')->with('success', 'Loan application creted successfully!');
     }
+
+
+    //send document verifacation 
+    public function sendForDocumentVerification($id)
+    {
+        $loan = LoanAD::findOrFail($id);
+
+        if ($loan->application_status !== 'approved') {
+            return back()->with('error', 'Only approved applications can be sent for document verification.');
+        }
+
+        $loan->application_status = 'under_document_verification';
+        $loan->save();
+
+        return back()->with('success', 'Application sent for document verification.');
+    }
+
 
     public function checkLoanEligibility(Request $request)
     {
@@ -281,9 +387,9 @@ class LoanController extends Controller
         $loan = LoanAD::findOrFail($id);
 
         // Check if the application is already approved
-        if ($loan->application_approved_by !== null) {
-            return redirect()->back()->with('error', 'Approved applications cannot be deleted.');
-        }
+        // if ($loan->application_approved_by !== null) {
+        //     return redirect()->back()->with('error', 'Approved applications cannot be deleted.');
+        // }
 
         // Proceed to delete the record
         $loan->delete();
@@ -421,9 +527,76 @@ class LoanController extends Controller
         $loan->application_rejected_by = Auth::id(); // Set current authenticated user
         $loan->application_rejected_at = Carbon::now(); // Set current timestamp
 
+        // Save reason
+        $loan->rejection_reason = $request->input('reject_reason');
+
         $loan->save();
         return redirect()->back()->with('error', 'Loan rejected.');
     }
+
+    //loan document section 
+
+    
+    // Show document verification page
+    public function Docedit($loanId)
+    {
+        $loan = LoanAD::findOrFail($loanId);
+        $member = Memeber::findOrFail($loan->member_id);
+
+        return view('loan_documents.edit', compact('loan', 'member'));
+    }
+
+    // Upload document
+    public function Docupload(Request $request, $loanId, $type)
+    {
+        $loan = LoanAD::findOrFail($loanId);
+        $member = Memeber::findOrFail($loan->member_id);
+
+        if (!in_array($type, ['photo', 'signature', 'driving_license', 'pan_card', 'aadhar_card'])) {
+            return back()->with('error', 'Invalid document type.');
+        }
+
+        if ($request->hasFile('document')) {
+            // Delete old one if exists
+            if ($member->$type) {
+                Storage::delete($member->$type);
+            }
+
+            // Save new file
+            $path = $request->file('documentOne')->store("members/{$member->id}", 'public');
+            $member->$type = $path;
+            $member->save();
+
+            return back()->with('success', ucfirst($type) . ' uploaded successfully.');
+        }
+
+        return back()->with('error', 'No file selected.');
+    }
+
+    // Delete document
+    public function Docdestroy($loanId, $type)
+    {
+        $loan = LoanAD::findOrFail($loanId);
+        $member = Memeber::findOrFail($loan->member_id);
+
+        if (!in_array($type, ['photo', 'signature', 'driving_license', 'pan_card', 'aadhar_card'])) {
+            return back()->with('error', 'Invalid document type.');
+        }
+
+        if ($member->$type) {
+            Storage::delete($member->$type);
+            $member->$type = null;
+            $member->save();
+
+            return back()->with('success', ucfirst($type) . ' deleted successfully.');
+        }
+
+        return back()->with('error', ucfirst($type) . ' not found.');
+    }
+
+
+
+
 
 
 }

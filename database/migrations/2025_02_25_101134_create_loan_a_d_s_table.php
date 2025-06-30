@@ -31,7 +31,7 @@ return new class extends Migration
             // Loan Application & Approval
             $table->decimal('application_balance', 15, 2)->default(0); // Loan amount requested
             $table->decimal('approved_balance', 15, 2)->default(0); // Loan amount approved
-            $table->enum('application_status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->enum('application_status', ['pending', 'approved', 'under_document_verification','document_verified','under_disbursement','disbursed','rejected'])->default('pending');
             $table->unsignedBigInteger('application_approved_by')->nullable(); // User ID who approved
             $table->timestamp('application_approved_at')->nullable();          // When approved
 
@@ -56,6 +56,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('document_rejected_by')->nullable();
             $table->timestamp('document_rejected_at')->nullable();
+            $table->string('rejection_reason')->nullable(); 
 
             $table->json('verification_documents')->nullable();
 

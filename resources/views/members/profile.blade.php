@@ -65,7 +65,7 @@
                 </div>
                 <!-- Right Side: Profile Image -->
                 <div>
-                    <img src="{{ $member->photo ? asset('storage/'.$member->photo)  : asset('assetsDashboard/img/stock/img1.jpg') }}"
+                    <img src="{{ $member->photo ? asset('storage/'.$member->photo)  : asset('assetsDashboard/img/stock/img1.jpg')  }}"
                         alt="Profile Image" class="border rounded profile-image" width="90" height="90">
                 </div>
             </div>

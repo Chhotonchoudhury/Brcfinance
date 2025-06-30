@@ -215,10 +215,29 @@ Route::middleware(['auth'])->group(function () {
     
      // loan routes 
     Route::get('/loan-AD-application', [LoanController::class, 'LoanADApplication'])->name('LoanADApplication.index');
+    Route::get('/loan-AD-application-approved', [LoanController::class, 'LoanADApplicationAp'])->name('LoanADApplication.app');
+    Route::get('/loan-AD-application-rejected', [LoanController::class, 'LoanADApplicationReject'])->name('LoanADApplication.reject');
+    Route::get('/loan-AD-application-under-doc-verify', [LoanController::class, 'LoanADApplicationUDocVerify'])->name('LoanADApplication.underDocVerify');
+    Route::put('/loan-ad-application/{id}/send-for-verification', [LoanController::class, 'sendForDocumentVerification'])->name('LoanADApplication.sendForVerification');
+    Route::get('/loan-documents/verify/{loanId}', [LoanController::class, 'DocEdit'])->name('loan-documents.edit');
+
+    Route::prefix('loan-documents')->group(function () {
+        Route::get('{loan}', [LoanController::class, 'Docedit'])->name('loan-documents.edit');
+        Route::post('{loan}/{type}', [LoanController::class, 'Docupload'])->name('loan-documents.upload');
+        Route::delete('{loan}/{type}', [LoanController::class, 'Docdestroy'])->name('loan-documents.destroy');
+    });
+
     Route::get('/loan-AD-application/store', [LoanController::class, 'CreateLoanADapplication'])->name('LoanADApplication.create');
     Route::post('/loan-Ad-application/created', [LoanController::class, 'StoreLoanADCreated'])->name('LoanADApplication.save');
     Route::post('/check-loan-eligibility', [LoanController::class, 'checkLoanEligibility']);
-    
+
+    // Loan Document Verification Routes
+    Route::post('/loan-docs/upload/{loanId}', [LoanController::class, 'upload'])->name('loan.docs.upload');
+    Route::delete('/loan-docs/delete/{loanId}/{type}', [LoanController::class, 'delete'])->name('loan.docs.delete');
+    Route::post('/loan-docs/upload-extra', [LoanController::class, 'uploadExtra'])->name('loan.docs.uploadExtra');
+
+    Route::get('/loan-docs/{loanId}', [LoanController::class, 'getDocuments']);
+
         // Show the loan calculator form
     Route::get('/loan-ad-calculator', [LoanController::class, 'showAdForm'])->name('loan.ad.calculator.form');
     // Handle calculation request
